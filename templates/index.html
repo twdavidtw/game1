@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Snake Chat Room</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <div id="setup">
+        <div class="modal">
+            <h1>歡迎來到多人貪食蛇聊天室</h1>
+            <input type="text" id="username" placeholder="請輸入暱稱..." maxlength="10">
+            <button id="join-btn">開始遊戲</button>
+        </div>
+    </div>
+
+    <div id="game-container" style="display: none;">
+        <div class="left-panel">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <div id="stats">
+                <div id="player-info"></div>
+            </div>
+        </div>
+        <div class="right-panel">
+            <div id="chat-box">
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="說點什麼吧...">
+                    <button id="send-btn">發送</button>
+                </div>
+                <div id="messages"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
