@@ -39,38 +39,41 @@ def reset_player(sid, name):
 
 def game_loop():
     while True:
-        socketio.sleep(0.2) # 5 FPS
-        if not game_state['players']:
-            continue
+        try:
+            socketio.sleep(0.2) # 5 FPS
+            if not game_state['players']:
+                continue
             
-        # Update each player
-        for sid, player in game_state['players'].items():
-            # Update body (add current head to body)
-            player['body'].insert(0, {'x': player['pos']['x'], 'y': player['pos']['y']})
+            # Update each player
+            for sid, player in list(game_state['players'].items()):
+                # Update body (add current head to body)
+                player['body'].insert(0, {'x': player['pos']['x'], 'y': player['pos']['y']})
+                
+                # Move head
+                player['pos']['x'] = (player['pos']['x'] + player['dir']['x']) % COLS
+                player['pos']['y'] = (player['pos']['y'] + player['dir']['y']) % ROWS
+                
+                # Check food
+                if player['pos']['x'] == game_state['food']['x'] and player['pos']['y'] == game_state['food']['y']:
+                    player['score'] += 1
+                    game_state['food'] = {'x': random.randint(0, COLS-1), 'y': random.randint(0, ROWS-1)}
+                    socketio.emit('score_sound', broadcast=True)
+                else:
+                    if len(player['body']) > player['score']:
+                        player['body'].pop()
+                        
+                # Check collision with self
+                for segment in player['body']:
+                    if player['pos']['x'] == segment['x'] and player['pos']['y'] == segment['y']:
+                        # Reset player on collision
+                        reset_player(sid, player['name'])
+                        socketio.emit('chat', {'name': '系統', 'msg': f"{player['name']} 撞到自己了！"}, broadcast=True)
+                        break
             
-            # Move head
-            player['pos']['x'] = (player['pos']['x'] + player['dir']['x']) % COLS
-            player['pos']['y'] = (player['pos']['y'] + player['dir']['y']) % ROWS
-            
-            # Check food
-            if player['pos']['x'] == game_state['food']['x'] and player['pos']['y'] == game_state['food']['y']:
-                player['score'] += 1
-                game_state['food'] = {'x': random.randint(0, COLS-1), 'y': random.randint(0, ROWS-1)}
-                socketio.emit('score_sound', broadcast=True)
-            else:
-                if len(player['body']) > player['score']:
-                    player['body'].pop()
-                    
-            # Check collision with self
-            for segment in player['body']:
-                if player['pos']['x'] == segment['x'] and player['pos']['y'] == segment['y']:
-                    # Reset player on collision
-                    reset_player(sid, player['name'])
-                    socketio.emit('chat', {'name': '系統', 'msg': f"{player['name']} 撞到自己了！"}, broadcast=True)
-                    break
-        
-        # Broadcast state
-        socketio.emit('game_update', game_state)
+            # Broadcast state
+            socketio.emit('game_update', game_state)
+        except Exception as e:
+            print(f"Error in game_loop loop iteration: {e}")
 
 @app.route('/')
 def index():
