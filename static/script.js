@@ -35,6 +35,7 @@ joinBtn.onclick = () => {
 };
 
 // Controls
+// Controls (Keyboard)
 document.addEventListener('keydown', (e) => {
     let dir = null;
     if (e.key === 'ArrowUp' || e.key === 'w') dir = { x: 0, y: -1 };
@@ -46,6 +47,17 @@ document.addEventListener('keydown', (e) => {
         socket.emit('move', { dir });
     }
 });
+
+// Controls (Mobile D-Pad)
+const setupDPad = () => {
+    const emitMove = (dir) => socket.emit('move', { dir });
+    
+    document.getElementById('up-btn')?.addEventListener('pointerdown', (e) => { e.preventDefault(); emitMove({ x: 0, y: -1 }); });
+    document.getElementById('down-btn')?.addEventListener('pointerdown', (e) => { e.preventDefault(); emitMove({ x: 0, y: 1 }); });
+    document.getElementById('left-btn')?.addEventListener('pointerdown', (e) => { e.preventDefault(); emitMove({ x: -1, y: 0 }); });
+    document.getElementById('right-btn')?.addEventListener('pointerdown', (e) => { e.preventDefault(); emitMove({ x: 1, y: 0 }); });
+};
+setupDPad();
 
 // Chat
 const sendMessage = () => {

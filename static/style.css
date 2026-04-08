@@ -81,8 +81,10 @@ button:hover { transform: translateY(-2px); opacity: 0.9; }
 
 #game-container {
     display: flex;
-    width: 1200px;
-    height: 700px;
+    width: 100%;
+    max-width: 1200px;
+    height: 95vh;
+    max-height: 800px;
     gap: 20px;
     padding: 20px;
 }
@@ -98,6 +100,70 @@ button:hover { transform: translateY(-2px); opacity: 0.9; }
     border-radius: 16px;
     border: 2px solid var(--glass);
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4/3;
+    object-fit: contain;
+}
+
+#mobile-controls {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.dpad-middle {
+    display: flex;
+    gap: 50px;
+}
+
+.dpad-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    user-select: none;
+    touch-action: manipulation;
+}
+
+.dpad-btn:active, .dpad-btn:focus {
+    background: var(--accent);
+    color: var(--bg-dark);
+}
+
+@media (max-width: 800px) {
+    body {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+        align-items: flex-start;
+    }
+    #game-container {
+        flex-direction: column;
+        height: auto;
+        max-height: none;
+        padding: 10px;
+    }
+    #mobile-controls {
+        display: flex;
+    }
+    .right-panel {
+        height: 400px;
+        flex: none;
+    }
+    .modal {
+        padding: 2rem;
+        width: 95%;
+    }
 }
 
 .right-panel {
