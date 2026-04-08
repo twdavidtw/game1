@@ -146,6 +146,8 @@ button:hover { transform: translateY(-2px); opacity: 0.9; }
         min-height: 100vh;
         overflow-y: auto;
         align-items: flex-start;
+        justify-content: flex-start; /* Fixes scrolling cutoff */
+        padding-bottom: 20px;
     }
     #game-container {
         flex-direction: column;
