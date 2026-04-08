@@ -76,8 +76,16 @@ def game_loop():
 def index():
     return render_template('index.html')
 
+# Background thread for game loop
+thread = None
+thread_lock = threading.Lock()
+
 @socketio.on('connect')
 def handle_connect():
+    global thread
+    with thread_lock:
+        if thread is None:
+            thread = socketio.start_background_task(game_loop)
     print(f"Client connected: {threading.get_ident()}")
 
 @socketio.on('join')
