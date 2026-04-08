@@ -56,6 +56,7 @@ def game_loop():
             if player['pos']['x'] == game_state['food']['x'] and player['pos']['y'] == game_state['food']['y']:
                 player['score'] += 1
                 game_state['food'] = {'x': random.randint(0, COLS-1), 'y': random.randint(0, ROWS-1)}
+                socketio.emit('score_sound', broadcast=True)
             else:
                 if len(player['body']) > player['score']:
                     player['body'].pop()

@@ -18,12 +18,20 @@ const sendBtn = document.getElementById('send-btn');
 const messagesArea = document.getElementById('messages');
 const statsArea = document.getElementById('player-info');
 
+// Audio setup
+const bgMusic = new Audio('/static/background.wav');
+bgMusic.loop = true;
+const scoreSound = new Audio('/static/score.wav');
+
 // Join Game
 joinBtn.onclick = () => {
     const name = usernameInput.value.trim() || '匿名的蛇';
     socket.emit('join', { name });
     setup.style.display = 'none';
     gameContainer.style.display = 'flex';
+    
+    // Start background music
+    bgMusic.play().catch(e => console.log("Audio play failed:", e));
 };
 
 // Controls
@@ -68,6 +76,11 @@ socket.on('game_update', (state) => {
     gameState = state;
     render();
     updateStats();
+});
+
+socket.on('score_sound', () => {
+    scoreSound.currentTime = 0;
+    scoreSound.play().catch(e => console.log("Sound play failed:", e));
 });
 
 // Rendering
