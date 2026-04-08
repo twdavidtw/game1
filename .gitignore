@@ -13,6 +13,10 @@ build/
 *.exe
 *.spec
 
+# Archives
+*.zip
+*.tar.gz
+
 # OS
 .DS_Store
 Thumbs.db

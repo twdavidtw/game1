@@ -130,6 +130,7 @@ if __name__ == '__main__':
     import os
     # Start game loop in background
     socketio.start_background_task(game_loop)
-    # Use PORT from environment variables (assigned by Render/Heroku)
-    port = int(os.environ.get('PORT', 5000))
+    # Use PORT or SERVER_PORT from environment variables (assigned by Render/Heroku/FalixNodes)
+    port = int(os.environ.get('PORT', os.environ.get('SERVER_PORT', 5000)))
+    print(f"Starting server on port {port}...")
     socketio.run(app, debug=True, host='0.0.0.0', port=port)
