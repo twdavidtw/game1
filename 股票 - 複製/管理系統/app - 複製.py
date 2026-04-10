@@ -31,6 +31,7 @@ def index():
              db_status = "Waiting for configuration"
     except Exception as e:
         db_status = f"Error: {e}"
+        
     return render_template('index.html', config=config, db_status=db_status)
 
 @app.route('/api/config', methods=['POST'])
@@ -62,34 +63,30 @@ def get_options():
 
 @app.route('/api/dashboard/top_stocks')
 def top_stocks():
-    # 支援日期區間與時段區間
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    start_session = request.args.get('start_session', '')
-    end_session = request.args.get('end_session', '')
-
-    if not start_date or not end_date:
-        return jsonify({"error": "Missing start_date or end_date"}), 400
-
+    trade_date = request.args.get('trade_date')
+    session_time = request.args.get('session_time')
+    
+    if not trade_date:
+        return jsonify({"error": "Missing trade_date"}), 400
+        
     try:
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        params = [start_date, end_date]
+        
+        params = [trade_date]
         session_filter = ""
-        if start_session:
-            session_filter += " AND tv.session_time >= %s"
-            params.append(start_session)
-        if end_session:
-            session_filter += " AND tv.session_time <= %s"
-            params.append(end_session)
-
+        if session_time:
+            session_filter = "AND tv.session_time = %s"
+            params.append(session_time)
+        
+        # OTC 前 30 大交易張數排名 (總買+總賣)
         query = f"""
-            SELECT c.stock_code, c.stock_name,
-                   SUM(tv.buy_volume + tv.sell_volume) / 1000.0 AS total_volume,
-                   SUM(tv.buy_volume - tv.sell_volume) / 1000.0 AS net_volume
+            SELECT c.stock_code, c.stock_name, 
+                   SUM(tv.buy_volume + tv.sell_volume)/1000 as total_volume,
+                   SUM(tv.buy_volume - tv.sell_volume)/1000 as net_volume
             FROM trading_volume tv
             JOIN companies c ON tv.stock_code = c.stock_code
-            WHERE tv.trade_date BETWEEN %s AND %s {session_filter}
+            WHERE tv.trade_date = %s {session_filter}
             GROUP BY c.stock_code, c.stock_name
             ORDER BY total_volume DESC
             LIMIT 30
@@ -97,121 +94,106 @@ def top_stocks():
         cur.execute(query, params)
         rows = cur.fetchall()
         conn.close()
-        # 轉為整數張數
-        for row in rows:
-            row['total_volume'] = int(round(row['total_volume']))
-            row['net_volume'] = int(round(row['net_volume']))
         return jsonify(rows)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/dashboard/stock_details')
 def get_stock_details():
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
+    trade_date = request.args.get('trade_date')
     stock_code = request.args.get('stock_code')
-    start_session = request.args.get('start_session', '')
-    end_session = request.args.get('end_session', '')
-
-    if not start_date or not end_date or not stock_code:
+    session_time = request.args.get('session_time')
+    
+    if not trade_date or not stock_code:
         return jsonify({"error": "Missing parameters"}), 400
-
+        
     try:
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-
-        # 1. 股價資訊：取區間最後一天
+        
+        # 1. 股價資訊
         cur.execute("""
-            SELECT close_price, open_price, high_price, low_price, trade_shares, trade_amount
-            FROM stock_prices_3104
-            WHERE stock_code = %s AND trade_date BETWEEN %s AND %s
-            ORDER BY trade_date DESC
-            LIMIT 1
-        """, (stock_code, start_date, end_date))
+            SELECT close_price, open_price, high_price, low_price, trade_shares, trade_amount 
+            FROM stock_prices_3104 
+            WHERE trade_date = %s AND stock_code = %s
+        """, (trade_date, stock_code))
         price_info = cur.fetchone() or {}
-        if price_info and price_info.get('trade_shares'):
-            # 股數 -> 張數，取整
-            price_info['trade_shares'] = int(round(price_info['trade_shares'] / 1000.0))
 
-        # 2. 券商買賣超明細（區間累計）
-        params = [start_date, end_date, stock_code]
+        # 2. 券商資訊: 買賣超明細與家數
+        params = [trade_date, stock_code]
         session_filter = ""
-        if start_session:
-            session_filter += " AND tv.session_time >= %s"
-            params.append(start_session)
-        if end_session:
-            session_filter += " AND tv.session_time <= %s"
-            params.append(end_session)
-
+        if session_time:
+            session_filter = "AND tv.session_time = %s"
+            params.append(session_time)
+            
         cur.execute(f"""
-            SELECT b.broker_name,
-                   SUM(tv.buy_volume) / 1000.0 AS total_buy,
-                   SUM(tv.sell_volume) / 1000.0 AS total_sell,
-                   SUM(tv.buy_volume - tv.sell_volume) / 1000.0 AS net_buy
+            SELECT b.broker_name, 
+                   SUM(tv.buy_volume)/1000 as total_buy, 
+                   SUM(tv.sell_volume)/1000 as total_sell, 
+                   SUM(tv.buy_volume - tv.sell_volume)/1000 as net_buy
             FROM trading_volume tv
             JOIN brokers b ON tv.broker_code = b.broker_code
-            WHERE tv.trade_date BETWEEN %s AND %s
-              AND tv.stock_code = %s {session_filter}
+            WHERE tv.trade_date = %s AND tv.stock_code = %s {session_filter}
             GROUP BY b.broker_code, b.broker_name
         """, params)
         brokers_vol = cur.fetchall()
-
-        # 轉為整數張數
-        for b in brokers_vol:
-            b['total_buy'] = int(round(b['total_buy']))
-            b['total_sell'] = int(round(b['total_sell']))
-            b['net_buy'] = int(round(b['net_buy']))
 
         sorted_by_net = sorted(brokers_vol, key=lambda x: x['net_buy'], reverse=True)
         top_buyers = [r for r in sorted_by_net if r['net_buy'] > 0][:10]
         top_sellers = [r for r in sorted_by_net if r['net_buy'] < 0]
         top_sellers = sorted(top_sellers, key=lambda x: x['net_buy'])[:10]
-
+        
         buy_broker_count = len([r for r in brokers_vol if r['net_buy'] > 0])
         sell_broker_count = len([r for r in brokers_vol if r['net_buy'] < 0])
+        
+        # We need the broker names that make up these counts
+        buy_brokers_list = [r['broker_name'] for r in brokers_vol if r['net_buy'] > 0]
+        sell_brokers_list = [r['broker_name'] for r in brokers_vol if r['net_buy'] < 0]
+        
         total_buy_vol = sum(r['total_buy'] for r in brokers_vol)
         total_sell_vol = sum(r['total_sell'] for r in brokers_vol)
-        net_vol = total_buy_vol - total_sell_vol
 
-        # 3. 處置股與注意股（區間內）
+        # 3. 股票輔助資訊 (處置或注意股)
         cur.execute("""
-            SELECT date_start, date_end, condition_desc
-            FROM disposal_stocks
-            WHERE stock_code = %s
-              AND (date_start <= %s AND date_end >= %s)
-        """, (stock_code, end_date, start_date))
+            SELECT date_start, date_end, condition_desc 
+            FROM disposal_stocks 
+            WHERE stock_code = %s AND %s BETWEEN date_start AND date_end
+        """, (stock_code, trade_date))
         disposal_info = cur.fetchall()
 
         cur.execute("""
-            SELECT attention_date, reason
-            FROM attention_stocks
-            WHERE stock_code = %s
-              AND attention_date BETWEEN %s AND %s
-        """, (stock_code, start_date, end_date))
+            SELECT attention_date, reason 
+            FROM attention_stocks 
+            WHERE stock_code = %s AND attention_date = %s
+        """, (stock_code, trade_date))
         attention_info = cur.fetchall()
 
         conn.close()
 
-        # 日期格式化
-        for row in disposal_info:
-            if not isinstance(row['date_start'], str):
-                row['date_start'] = row['date_start'].strftime('%Y-%m-%d')
-                row['date_end'] = row['date_end'].strftime('%Y-%m-%d')
-        for row in attention_info:
-            if not isinstance(row['attention_date'], str):
-                row['attention_date'] = row['attention_date'].strftime('%Y-%m-%d')
+        for idx, row in enumerate(disposal_info):
+            if isinstance(row['date_start'], str) == False:
+                disposal_info[idx]['date_start'] = row['date_start'].strftime('%Y-%m-%d')
+                disposal_info[idx]['date_end'] = row['date_end'].strftime('%Y-%m-%d')
+                
+        for idx, row in enumerate(attention_info):
+             if isinstance(row['attention_date'], str) == False:
+                attention_info[idx]['attention_date'] = row['attention_date'].strftime('%Y-%m-%d')
+                
+        if price_info and 'trade_shares' in price_info and price_info['trade_shares']:
+             price_info['trade_shares'] = price_info['trade_shares'] / 1000
 
         return jsonify({
             "price_info": price_info,
             "brokers": {
-                "details": brokers_vol,          # 全部券商明細
                 "top_buyers": top_buyers,
                 "top_sellers": top_sellers,
                 "buy_count": buy_broker_count,
                 "sell_count": sell_broker_count,
+                "buy_list": buy_brokers_list,
+                "sell_list": sell_brokers_list,
                 "total_buy_vol": total_buy_vol,
                 "total_sell_vol": total_sell_vol,
-                "net_vol": net_vol
+                "net_vol": total_buy_vol - total_sell_vol
             },
             "auxiliary": {
                 "disposal": disposal_info,
@@ -225,19 +207,20 @@ def get_stock_details():
 
 @app.route('/api/dashboard/trend')
 def get_trend():
-    # 維持單日查詢（用於最後一天的走勢）
     trade_date = request.args.get('trade_date')
     stock_code = request.args.get('stock_code')
+    
     if not stock_code or not trade_date:
         return jsonify({"error": "Missing parameters"}), 400
-
+        
     try:
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        # Fetch grouped by session time
         cur.execute("""
-            SELECT session_time,
-                   SUM(buy_volume + sell_volume) / 1000.0 AS total_volume,
-                   SUM(buy_volume - sell_volume) / 1000.0 AS net_volume
+            SELECT session_time, 
+                   SUM(buy_volume + sell_volume)/1000 as total_volume,
+                   SUM(buy_volume - sell_volume)/1000 as net_volume
             FROM trading_volume
             WHERE trade_date = %s AND stock_code = %s
             GROUP BY session_time
@@ -245,9 +228,6 @@ def get_trend():
         """, (trade_date, stock_code))
         rows = cur.fetchall()
         conn.close()
-        for row in rows:
-            row['total_volume'] = int(round(row['total_volume']))
-            row['net_volume'] = int(round(row['net_volume']))
         return jsonify(rows)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -255,9 +235,10 @@ def get_trend():
 @app.route('/api/ingest', methods=['POST'])
 def trigger_ingest():
     action = request.json.get('action')
+    # Run the ingestion scripts asynchronously
     def run_script(script_name):
         subprocess.Popen(['python', f'd:\\AI\\股票\\管理系統\\{script_name}'])
-
+        
     if action == '2026':
         threading.Thread(target=lambda: run_script('ingest_2026.py')).start()
     elif action == '3104':
@@ -265,9 +246,8 @@ def trigger_ingest():
     elif action == 'aux':
         threading.Thread(target=lambda: run_script('ingest_aux_csv.py')).start()
     elif action == 'tpex_api':
+        # Optionally wait to develop a pure API fetcher
         return jsonify({"message": "Triggered API fetcher", "status": "Not completely implemented yet"}), 200
-    else:
-        return jsonify({"error": "Unknown action"}), 400
 
     return jsonify({"message": f"Ingestion {action} triggered in background."})
 

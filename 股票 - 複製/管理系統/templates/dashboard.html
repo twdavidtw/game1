@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,10 +16,8 @@
             --bg-card: #1e293b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --accent-up: #ef4444;
-            /* Taiwan stock red for up */
-            --accent-down: #22c55e;
-            /* Taiwan stock green for down */
+            --accent-up: #ef4444; /* Taiwan stock red for up */
+            --accent-down: #22c55e; /* Taiwan stock green for down */
             --warning: #f59e0b;
             --danger: #e11d48;
             --border-color: #334155;
@@ -47,7 +44,7 @@
             display: flex;
             flex-direction: column;
             padding: 20px;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
             z-index: 10;
         }
 
@@ -61,13 +58,9 @@
             color: var(--primary);
         }
 
-        .logo i {
-            font-size: 1.8rem;
-        }
+        .logo i { font-size: 1.8rem; }
 
-        .control-group {
-            margin-bottom: 20px;
-        }
+        .control-group { margin-bottom: 20px; }
 
         .control-label {
             font-size: 0.85rem;
@@ -91,18 +84,15 @@
             transition: var(--transition);
             appearance: none;
         }
-
-        select.modern-select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
-        }
+        
+        select.modern-select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3); }
 
         .btn-modern {
             width: 100%;
             padding: 12px;
             border: none;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255,255,255,0.05);
             color: var(--text-main);
             font-size: 0.95rem;
             cursor: pointer;
@@ -115,22 +105,9 @@
             border: 1px solid var(--border-color);
         }
 
-        .btn-modern:hover {
-            background: var(--primary);
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .btn-modern.loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        .btn-modern i {
-            width: 20px;
-            text-align: center;
-        }
+        .btn-modern:hover { background: var(--primary); border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+        .btn-modern.loading { opacity: 0.7; pointer-events: none; }
+        .btn-modern i { width: 20px; text-align: center; }
 
         /* Main Content Grid */
         .main-content {
@@ -142,14 +119,8 @@
         }
 
         /* Top 30 Table Panel */
-        .panel {
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .panel-left {
-            border-right: 1px solid var(--border-color);
-        }
+        .panel { padding: 20px; overflow-y: auto; }
+        .panel-left { border-right: 1px solid var(--border-color); }
 
         .panel-title {
             font-size: 1.2rem;
@@ -167,12 +138,7 @@
         }
 
         /* Minimalistic Table */
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
         th {
             text-align: right;
             padding: 12px 10px;
@@ -181,74 +147,36 @@
             font-size: 0.85rem;
             border-bottom: 1px solid var(--border-color);
         }
-
-        th:first-child,
-        td:first-child {
-            text-align: left;
-        }
-
+        th:first-child, td:first-child { text-align: left; }
         td {
             padding: 12px 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             font-variant-numeric: tabular-nums;
             cursor: pointer;
             transition: var(--transition);
             text-align: right;
         }
 
-        tr.stock-row:hover td {
-            background-color: rgba(79, 70, 229, 0.1);
-        }
-
-        tr.stock-row.active td {
-            background-color: rgba(79, 70, 229, 0.2);
-            font-weight: 600;
-            border-left: 3px solid var(--primary);
-        }
+        tr.stock-row:hover td { background-color: rgba(79, 70, 229, 0.1); }
+        tr.stock-row.active td { background-color: rgba(79, 70, 229, 0.2); font-weight: 600; border-left: 3px solid var(--primary); }
 
         /* Color formatting classes */
-        .text-red {
-            color: var(--accent-up) !important;
-        }
-
-        .text-green {
-            color: var(--accent-down) !important;
-        }
+        .text-red { color: var(--accent-up) !important; }
+        .text-green { color: var(--accent-down) !important; }
 
         /* Details Panel */
-        .detail-panel {
-            padding: 30px;
-            display: none;
-            overflow-y: auto;
-        }
-
+        .detail-panel { padding: 30px; display: none; overflow-y: auto; }
         .detail-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
             margin-bottom: 20px;
         }
+        
+        .stock-identity h1 { font-size: 2.2rem; margin: 0 0 5px 0; letter-spacing: -1px; }
+        .stock-identity h1 span { color: var(--text-muted); font-size: 1.2rem; font-weight: 500; margin-left: 10px; }
 
-        .stock-identity h1 {
-            font-size: 2.2rem;
-            margin: 0 0 5px 0;
-            letter-spacing: -1px;
-        }
-
-        .stock-identity h1 span {
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            font-weight: 500;
-            margin-left: 10px;
-        }
-
-        .aux-banners {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
+        .aux-banners { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
         .banner {
             padding: 6px 12px;
             border-radius: 6px;
@@ -257,20 +185,10 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-
-        .banner.disposal {
-            background-color: rgba(225, 29, 72, 0.2);
-            color: #fda4af;
-            border: 1px solid var(--danger);
-        }
-
-        .banner.attention {
-            background-color: rgba(245, 158, 11, 0.2);
-            color: #fcd34d;
-            border: 1px solid var(--warning);
-        }
+        .banner.disposal { background-color: rgba(225, 29, 72, 0.2); color: #fda4af; border: 1px solid var(--danger); }
+        .banner.attention { background-color: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid var(--warning); }
 
         /* Stats Grid */
         .stats-grid {
@@ -281,7 +199,7 @@
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255,255,255,0.03);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 15px;
@@ -290,36 +208,17 @@
             transition: var(--transition);
             position: relative;
         }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .stat-title {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-
-        .stat-value {
-            font-size: 1.6rem;
-            font-weight: 700;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .stat-sub {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 5px;
-        }
+        .stat-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.1); }
+        
+        .stat-title { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-value { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .stat-sub { font-size: 0.85rem; color: var(--text-muted); margin-top: 5px; }
 
         /* Chart Area */
         .chart-container {
             width: 100%;
             height: 350px;
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255,255,255,0.02);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 10px;
@@ -334,65 +233,25 @@
             gap: 25px;
         }
 
-        .broker-list h3 {
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-        }
+        .broker-list h3 { border-bottom: 2px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px; font-size: 1.1rem;}
+        .broker-list.buyers h3 { border-color: rgba(239, 68, 68, 0.5); color: #fca5a5; }
+        .broker-list.sellers h3 { border-color: rgba(34, 197, 94, 0.5); color: #86efac; }
+        
+        .empty-state { text-align: center; color: var(--text-muted); margin-top: 20vh; }
+        .empty-state i { font-size: 4rem; opacity: 0.5; margin-bottom: 20px; }
 
-        .broker-list.buyers h3 {
-            border-color: rgba(239, 68, 68, 0.5);
-            color: #fca5a5;
-        }
-
-        .broker-list.sellers h3 {
-            border-color: rgba(34, 197, 94, 0.5);
-            color: #86efac;
-        }
-
-        .empty-state {
-            text-align: center;
-            color: var(--text-muted);
-            margin-top: 20vh;
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            opacity: 0.5;
-            margin-bottom: 20px;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        
         .toast {
             position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--primary);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
+            bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--primary); color: white;
+            padding: 12px 24px; border-radius: 8px;
             box-shadow: var(--shadow-glow);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
             z-index: 1000;
         }
 
@@ -416,7 +275,7 @@
             top: 100%;
             left: 50%;
             transform: translateX(-50%);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             display: none;
             z-index: 50;
             margin-top: 5px;
@@ -428,7 +287,6 @@
         }
     </style>
 </head>
-
 <body>
 
     <div class="sidebar">
@@ -473,10 +331,9 @@
         <div class="panel panel-left">
             <div class="panel-title">
                 <span><i class="fa-solid fa-trophy text-warning"></i> OTC 前 30 大交易量</span>
-                <span id="listDateBadge"
-                    style="font-size: 0.8rem; background: var(--bg-card); padding: 4px 8px; border-radius: 4px;"></span>
+                <span id="listDateBadge" style="font-size: 0.8rem; background: var(--bg-card); padding: 4px 8px; border-radius: 4px;"></span>
             </div>
-
+            
             <table id="topStocksTable">
                 <thead>
                     <tr>
@@ -486,9 +343,7 @@
                     </tr>
                 </thead>
                 <tbody id="topStocksBody">
-                    <tr>
-                        <td colspan="3" style="text-align:center; padding: 30px;">選擇左側日期展開...</td>
-                    </tr>
+                    <tr><td colspan="3" style="text-align:center; padding: 30px;">選擇左側日期展開...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -510,8 +365,7 @@
                     <div class="stat-title">當日價位狀態</div>
                     <div class="stat-value" id="statClose">--</div>
                     <div class="stat-sub">
-                        O: <span id="statOpen">--</span> H: <span id="statHigh">--</span> L: <span
-                            id="statLow">--</span>
+                        O: <span id="statOpen">--</span> H: <span id="statHigh">--</span> L: <span id="statLow">--</span>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -530,7 +384,7 @@
                         <span class="hoverable text-red">
                             <span id="statBuyCount">0</span>
                             <div class="custom-tooltip" id="buyCountTooltip"></div>
-                        </span> /
+                        </span> / 
                         <span class="hoverable text-green">
                             <span id="statSellCount">0</span>
                             <div class="custom-tooltip" id="sellCountTooltip"></div>
@@ -574,14 +428,14 @@
                 </div>
             </div>
         </div>
-
+        
         <div id="emptyState" class="empty-state">
             <i class="fa-solid fa-magnifying-glass-chart"></i>
             <h2>點選左側股票進行深度分析</h2>
             <p>透過總覽與時段圖表，追蹤大盤主力動向。</p>
         </div>
     </div>
-
+    
     <div id="toast" class="toast">訊息</div>
 
     <script>
@@ -595,11 +449,11 @@
                 const chartDom = document.getElementById('mainChart');
                 myChart = echarts.init(chartDom, 'dark');
 
-                window.addEventListener('resize', () => { if (myChart) myChart.resize(); });
+                window.addEventListener('resize', () => { if(myChart) myChart.resize(); });
 
                 const res = await fetch('/api/options');
                 const data = await res.json();
-
+                
                 const dateSelect = document.getElementById('dateSelect');
                 dateSelect.innerHTML = '';
                 data.dates.forEach(d => {
@@ -616,14 +470,14 @@
                     opt.textContent = `${s} 時段`;
                     sessionSelect.appendChild(opt);
                 });
-
+                
                 if (data.dates.length > 0) {
                     loadTopStocks(data.dates[0], '');
                 }
-
+                
                 dateSelect.addEventListener('change', () => { refreshDashboard(); });
                 sessionSelect.addEventListener('change', () => { refreshDashboard(); });
-
+                
             } catch (err) {
                 showToast("連線資料庫失敗，請確認已設定並匯入資料。" + err);
             }
@@ -641,21 +495,21 @@
             document.getElementById('listDateBadge').textContent = tradeDate + (sessionTime ? ` [${sessionTime}]` : ' [全天]');
             const tbody = document.getElementById('topStocksBody');
             tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;"><i class="fa-solid fa-spinner fa-spin"></i> 載入中...</td></tr>';
-
+            
             try {
                 // sessionTime parameter
                 let url = `/api/dashboard/top_stocks?trade_date=${tradeDate}`;
-                if (sessionTime) url += `&session_time=${sessionTime}`;
+                if(sessionTime) url += `&session_time=${sessionTime}`;
 
                 const res = await fetch(url);
                 const stocks = await res.json();
-
+                
                 tbody.innerHTML = '';
-                if (stocks.error) {
+                if(stocks.error) {
                     tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">錯誤: ${stocks.error}</td></tr>`;
                     return;
                 }
-
+                
                 stocks.forEach(st => {
                     const tr = document.createElement('tr');
                     tr.className = 'stock-row';
@@ -664,10 +518,10 @@
                         tr.classList.add('active');
                         loadStockDetails(tradeDate, st.stock_code, st.stock_name, sessionTime);
                     };
-
+                    
                     const netClass = st.net_volume > 0 ? 'text-red' : (st.net_volume < 0 ? 'text-green' : '');
                     const netSign = st.net_volume > 0 ? '+' : '';
-
+                    
                     tr.innerHTML = `
                         <td><strong>${st.stock_name}</strong> <span style="color:#64748b; font-size: 0.8rem;">(${st.stock_code})</span></td>
                         <td class="${netClass}">${netSign}${Number(st.net_volume).toLocaleString()}</td>
@@ -684,11 +538,11 @@
             document.getElementById('emptyState').style.display = 'none';
             const pnl = document.getElementById('detailPanel');
             pnl.style.display = 'block';
-
+            
             document.getElementById('detStockName').innerHTML = `${stockName} <span>(${stockCode})</span>`;
             document.getElementById('auxBannersContainer').innerHTML = ''; // reset
             pnl.style.opacity = '0.5';
-
+            
             try {
                 let url = `/api/dashboard/stock_details?trade_date=${tradeDate}&stock_code=${stockCode}`;
                 if (sessionTime) url += `&session_time=${sessionTime}`;
@@ -698,14 +552,14 @@
                     fetch(url),
                     fetch(`/api/dashboard/trend?trade_date=${tradeDate}&stock_code=${stockCode}`)
                 ]);
-
+                
                 const data = await resDet.json();
                 const trendData = await resTrend.json();
 
                 pnl.style.opacity = '1';
-
+                
                 if (data.error) { showToast(data.error); return; }
-
+                
                 // 1. Render Aux Banners
                 const banners = document.getElementById('auxBannersContainer');
                 data.auxiliary.disposal.forEach(d => {
@@ -714,34 +568,34 @@
                 data.auxiliary.attention.forEach(a => {
                     banners.innerHTML += `<div class="banner attention"><i class="fa-solid fa-circle-exclamation"></i> 注意股 (${a.attention_date}): ${a.reason}</div>`;
                 });
-
+                
                 // 2. Stats
                 const pi = data.price_info;
                 const brk = data.brokers;
-
+                
                 document.getElementById('statClose').innerHTML = pi && pi.close_price ? Number(pi.close_price).toFixed(2) : '-.-';
                 document.getElementById('statOpen').innerHTML = pi && pi.open_price ? pi.open_price : '-';
                 document.getElementById('statHigh').innerHTML = pi && pi.high_price ? pi.high_price : '-';
                 document.getElementById('statLow').innerHTML = pi && pi.low_price ? pi.low_price : '-';
-
+                
                 // Volume conversion: price_info API changed to compute shares / 1000 so it returns equivalent lots directly (varies whether global or session based)
                 // However, we just show the sum(buy_vol + sell_vol) from brokers if session_time is filtered
-                const combined_vol = brk.total_buy_vol + brk.total_sell_vol;
+                const combined_vol = brk.total_buy_vol + brk.total_sell_vol; 
                 document.getElementById('statVolume').innerHTML = combined_vol ? combined_vol.toLocaleString() : '-';
-
+                
                 const netClass = brk.net_vol > 0 ? 'text-red' : (brk.net_vol < 0 ? 'text-green' : '');
                 const netSign = brk.net_vol > 0 ? '+' : '';
                 document.getElementById('statNet').innerHTML = `<span class="${netClass}">${netSign}${Number(brk.net_vol).toLocaleString()}</span>`;
-
+                
                 document.getElementById('statBuyCount').textContent = brk.buy_count;
                 document.getElementById('statSellCount').textContent = brk.sell_count;
-
+                
                 document.getElementById('buyCountTooltip').innerHTML = brk.buy_list && brk.buy_list.length ? "<b>買方券商:</b><br>" + brk.buy_list.join(', ') : '無';
                 document.getElementById('sellCountTooltip').innerHTML = brk.sell_list && brk.sell_list.length ? "<b>賣方券商:</b><br>" + brk.sell_list.join(', ') : '無';
-
+                
                 // 3. Brokers Table
                 const buildRows = (arr) => {
-                    if (!arr || arr.length === 0) return '<tr><td colspan="4" style="text-align:center">無資料</td></tr>';
+                    if(!arr || arr.length === 0) return '<tr><td colspan="4" style="text-align:center">無資料</td></tr>';
                     return arr.map(r => `
                         <tr>
                             <td>${r.broker_name}</td>
@@ -753,27 +607,27 @@
                         </tr>
                     `).join('');
                 };
-
+                
                 document.getElementById('topBuyersBody').innerHTML = buildRows(brk.top_buyers);
                 document.getElementById('topSellersBody').innerHTML = buildRows(brk.top_sellers);
 
                 // 4. Update ECharts Diagram
                 renderCharts(tradeDate, pi, trendData);
-
-            } catch (e) {
+                
+            } catch(e) {
                 pnl.style.opacity = '1';
                 showToast("資料取得失敗：" + e);
             }
         }
-
+        
         function renderCharts(tradeDate, priceInfo, trendData) {
-            if (!myChart) return;
+            if(!myChart) return;
 
             // X Axis data
             let xAxisData = [];
             let volumeData = [];
-
-            if (trendData && !trendData.error) {
+            
+            if(trendData && !trendData.error) {
                 trendData.forEach(td => {
                     xAxisData.push(td.session_time + ' 時');
                     volumeData.push({
@@ -785,7 +639,7 @@
 
             // K-line data: [open, close, lowest, highest] -> Echarts format
             let kData = [];
-            if (priceInfo && priceInfo.open_price) {
+            if(priceInfo && priceInfo.open_price) {
                 kData = [[
                     priceInfo.open_price,
                     priceInfo.close_price,
@@ -820,7 +674,7 @@
                 ],
                 yAxis: [
                     { scale: true, gridIndex: 0, splitLine: { lineStyle: { color: '#334155' } } },
-                    { type: 'value', gridIndex: 1, splitLine: { show: false }, axisLabel: { show: false } }
+                    { type: 'value', gridIndex: 1, splitLine: { show: false }, axisLabel: {show: false} }
                 ],
                 series: [
                     {
@@ -851,16 +705,16 @@
             btnEl.classList.add('loading');
             const originalHtml = btnEl.innerHTML;
             btnEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 作業提交中...等待約 30 秒`;
-
+            
             try {
                 const res = await fetch('/api/ingest', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: actionType })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({action: actionType})
                 });
                 const rData = await res.json();
                 showToast(rData.message);
-            } catch (e) {
+            } catch(e) {
                 showToast("請求失敗: " + e);
             } finally {
                 setTimeout(() => {
@@ -869,7 +723,7 @@
                 }, 2000); // Give user enough time to see the background started msg
             }
         }
-
+        
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.textContent = msg;
@@ -878,5 +732,4 @@
         }
     </script>
 </body>
-
 </html>
