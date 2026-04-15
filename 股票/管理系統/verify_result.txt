@@ -1,0 +1,11 @@
+trading_volume total: 64683
+1815 volume records: 2120
+companies with names: 16022
+brokers with names: 45
+1815 name repr: '富喬'
+1815 name display: 富喬
+broker: '元大' -> '元大'
+broker: '凱基' -> '凱基'
+broker: '永豐金' -> '永豐金'
+broker: '富邦' -> '富邦'
+broker: '國泰綜合' -> '國泰綜合'

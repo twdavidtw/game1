@@ -1,0 +1,3 @@
+cp950 decode result: 富喬
+Expected: 富喬
+Match: True

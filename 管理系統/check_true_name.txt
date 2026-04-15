@@ -1,0 +1,16 @@
+富喬 in cp950 = b449b3ec = bytes [180, 73, 179, 236]
+Line hex: 2233222c22b449b3ec28313831352922
+Name area hex: 22b449b3ec
+Name area bytes: [34, 180, 73, 179, 236]
+  [cp950]: '"富喬'
+  [big5hkscs]: '"富喬'
+
+富 = U+5BCC, 喬 = U+55AC
+cp950 bytes for 富喬: b449b3ec
+
+File bytes:  b449b3ec
+富喬 bytes:  b449b3ec
+Match: True
+
+File bytes decoded cp950: '富喬'
+That is U+5BCC U+55AC

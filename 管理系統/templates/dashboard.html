@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTC 股票資料智慧系統 (Stock BI Dashboard)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Load ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-up: #ef4444;
+            /* Taiwan stock red for up */
+            --accent-down: #22c55e;
+            /* Taiwan stock green for down */
+            --warning: #f59e0b;
+            --danger: #e11d48;
+            --border-color: #334155;
+            --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            --transition: all 0.2s ease-in-out;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        select.modern-select {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 1rem;
+            margin-bottom: 10px;
+            outline: none;
+            transition: var(--transition);
+            appearance: none;
+        }
+
+        select.modern-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-modern {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-modern:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .btn-modern.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .btn-modern i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Grid */
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 35% 65%;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #020617 100%);
+        }
+
+        /* Top 30 Table Panel */
+        .panel {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .panel-left {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background: var(--bg-dark);
+            z-index: 5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Minimalistic Table */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            text-align: right;
+            padding: 12px 10px;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th:first-child,
+        td:first-child {
+            text-align: left;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-variant-numeric: tabular-nums;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: right;
+        }
+
+        tr.stock-row:hover td {
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        tr.stock-row.active td {
+            background-color: rgba(79, 70, 229, 0.2);
+            font-weight: 600;
+            border-left: 3px solid var(--primary);
+        }
+
+        /* Color formatting classes */
+        .text-red {
+            color: var(--accent-up) !important;
+        }
+
+        .text-green {
+            color: var(--accent-down) !important;
+        }
+
+        /* Details Panel */
+        .detail-panel {
+            padding: 30px;
+            display: none;
+            overflow-y: auto;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .stock-identity h1 {
+            font-size: 2.2rem;
+            margin: 0 0 5px 0;
+            letter-spacing: -1px;
+        }
+
+        .stock-identity h1 span {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        .aux-banners {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .banner {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .banner.disposal {
+            background-color: rgba(225, 29, 72, 0.2);
+            color: #fda4af;
+            border: 1px solid var(--danger);
+        }
+
+        .banner.attention {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+            border: 1px solid var(--warning);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: var(--shadow-glow);
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* Chart Area */
+        .chart-container {
+            width: 100%;
+            height: 350px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            box-sizing: border-box;
+            margin-bottom: 25px;
+        }
+
+        /* Brokers Grid */
+        .brokers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .broker-list h3 {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .broker-list.buyers h3 {
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+        }
+
+        .broker-list.sellers h3 {
+            border-color: rgba(34, 197, 94, 0.5);
+            color: #86efac;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 20vh;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-glow);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        /* Custom Hover Tooltip */
+        .hoverable {
+            text-decoration: underline dashed;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .custom-tooltip {
+            position: absolute;
+            background: #cbd5e1;
+            color: #0f172a;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            width: 200px;
+            max-height: 200px;
+            overflow-y: auto;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 50;
+            margin-top: 5px;
+            font-weight: normal;
+        }
+
+        .hoverable:hover .custom-tooltip {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-chart-pie"></i>
+            Stock BI
+        </div>
+
+        <div class="control-group">
+            <span class="control-label">資料日期</span>
+            <select id="dateSelect" class="modern-select">
+                <option value="">載入中...</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <span class="control-label">交易時段篩選</span>
+            <select id="sessionSelect" class="modern-select">
+                <option value="">-- 全天加總 --</option>
+                <!-- Filled dynamically -->
+            </select>
+        </div>
+
+        <div style="flex:1"></div>
+
+        <div class="control-group" style="margin-bottom:0;">
+            <span class="control-label">系統資料匯入</span>
+            <button class="btn-modern" onclick="triggerIngest('3104', this)">
+                <i class="fa-solid fa-money-bill-trend-up"></i> 匯入 3104 價格
+            </button>
+            <button class="btn-modern" onclick="triggerIngest('2026', this)">
+                <i class="fa-solid fa-users"></i> 重新載入券商 (清空已修復編碼)
+            </button>
+            <button class="btn-modern" onclick="triggerIngest('aux', this)">
+                <i class="fa-solid fa-shield-halved"></i> 修正處置/注意股
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Top 30 List Panel -->
+        <div class="panel panel-left">
+            <div class="panel-title">
+                <span><i class="fa-solid fa-trophy text-warning"></i> OTC 前 30 大交易量</span>
+                <span id="listDateBadge"
+                    style="font-size: 0.8rem; background: var(--bg-card); padding: 4px 8px; border-radius: 4px;"></span>
+            </div>
+
+            <table id="topStocksTable">
+                <thead>
+                    <tr>
+                        <th>股票名稱 (代號)</th>
+                        <th>總買/賣超量 (張)</th>
+                        <th>總交易量 (張)</th>
+                    </tr>
+                </thead>
+                <tbody id="topStocksBody">
+                    <tr>
+                        <td colspan="3" style="text-align:center; padding: 30px;">選擇左側日期展開...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Detail Panel -->
+        <div class="detail-panel" id="detailPanel">
+            <div class="detail-header">
+                <div class="stock-identity">
+                    <h1 id="detStockName">--</h1>
+                    <div id="auxBannersContainer" class="aux-banners">
+                        <!-- Filled dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">當日價位狀態</div>
+                    <div class="stat-value" id="statClose">--</div>
+                    <div class="stat-sub">
+                        O: <span id="statOpen">--</span> H: <span id="statHigh">--</span> L: <span
+                            id="statLow">--</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">當日/時段 總量 Volume</div>
+                    <div class="stat-value" id="statVolume">--</div>
+                    <div class="stat-sub">張 (即 1,000 股)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">當日/時段 統括買賣超 Net</div>
+                    <div class="stat-value" id="statNet">--</div>
+                    <div class="stat-sub">張</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">參與券商家數 Brokers</div>
+                    <div class="stat-value">
+                        <span class="hoverable text-red">
+                            <span id="statBuyCount">0</span>
+                            <div class="custom-tooltip" id="buyCountTooltip"></div>
+                        </span> /
+                        <span class="hoverable text-green">
+                            <span id="statSellCount">0</span>
+                            <div class="custom-tooltip" id="sellCountTooltip"></div>
+                        </span>
+                    </div>
+                    <div class="stat-sub">買方家數 / 賣方家數 (懸浮看名單)</div>
+                </div>
+            </div>
+
+            <!-- ECharts Container -->
+            <div id="mainChart" class="chart-container"></div>
+
+            <div class="brokers-grid">
+                <div class="broker-list buyers">
+                    <h3>前十大買超券商 Top Buyers</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>券商名稱</th>
+                                <th>買進(張)</th>
+                                <th>賣出(張)</th>
+                                <th>淨買超(張)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topBuyersBody"></tbody>
+                    </table>
+                </div>
+                <div class="broker-list sellers">
+                    <h3>前十大賣超券商 Top Sellers</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>券商名稱</th>
+                                <th>買進(張)</th>
+                                <th>賣出(張)</th>
+                                <th>淨賣超(張)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topSellersBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+            <i class="fa-solid fa-magnifying-glass-chart"></i>
+            <h2>點選左側股票進行深度分析</h2>
+            <p>透過總覽與時段圖表，追蹤大盤主力動向。</p>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">訊息</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', init);
+
+        let myChart = null;
+
+        async function init() {
+            try {
+                // Initialize Echarts
+                const chartDom = document.getElementById('mainChart');
+                myChart = echarts.init(chartDom, 'dark');
+
+                window.addEventListener('resize', () => { if (myChart) myChart.resize(); });
+
+                const res = await fetch('/api/options');
+                const data = await res.json();
+
+                const dateSelect = document.getElementById('dateSelect');
+                dateSelect.innerHTML = '';
+                data.dates.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d;
+                    dateSelect.appendChild(opt);
+                });
+
+                const sessionSelect = document.getElementById('sessionSelect');
+                data.sessions.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = `${s} 時段`;
+                    sessionSelect.appendChild(opt);
+                });
+
+                if (data.dates.length > 0) {
+                    loadTopStocks(data.dates[0], '');
+                }
+
+                dateSelect.addEventListener('change', () => { refreshDashboard(); });
+                sessionSelect.addEventListener('change', () => { refreshDashboard(); });
+
+            } catch (err) {
+                showToast("連線資料庫失敗，請確認已設定並匯入資料。" + err);
+            }
+        }
+
+        function refreshDashboard() {
+            const trDate = document.getElementById('dateSelect').value;
+            const tSess = document.getElementById('sessionSelect').value;
+            loadTopStocks(trDate, tSess);
+            document.getElementById('detailPanel').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        async function loadTopStocks(tradeDate, sessionTime) {
+            document.getElementById('listDateBadge').textContent = tradeDate + (sessionTime ? ` [${sessionTime}]` : ' [全天]');
+            const tbody = document.getElementById('topStocksBody');
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;"><i class="fa-solid fa-spinner fa-spin"></i> 載入中...</td></tr>';
+
+            try {
+                // sessionTime parameter
+                let url = `/api/dashboard/top_stocks?trade_date=${tradeDate}`;
+                if (sessionTime) url += `&session_time=${sessionTime}`;
+
+                const res = await fetch(url);
+                const stocks = await res.json();
+
+                tbody.innerHTML = '';
+                if (stocks.error) {
+                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">錯誤: ${stocks.error}</td></tr>`;
+                    return;
+                }
+
+                stocks.forEach(st => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'stock-row';
+                    tr.onclick = () => {
+                        document.querySelectorAll('.stock-row').forEach(r => r.classList.remove('active'));
+                        tr.classList.add('active');
+                        loadStockDetails(tradeDate, st.stock_code, st.stock_name, sessionTime);
+                    };
+
+                    const netClass = st.net_volume > 0 ? 'text-red' : (st.net_volume < 0 ? 'text-green' : '');
+                    const netSign = st.net_volume > 0 ? '+' : '';
+
+                    tr.innerHTML = `
+                        <td><strong>${st.stock_name}</strong> <span style="color:#64748b; font-size: 0.8rem;">(${st.stock_code})</span></td>
+                        <td class="${netClass}">${netSign}${Number(st.net_volume).toLocaleString()}</td>
+                        <td>${Number(st.total_volume).toLocaleString()}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:red;">發生例外錯誤</td></tr>`;
+            }
+        }
+
+        async function loadStockDetails(tradeDate, stockCode, stockName, sessionTime) {
+            document.getElementById('emptyState').style.display = 'none';
+            const pnl = document.getElementById('detailPanel');
+            pnl.style.display = 'block';
+
+            document.getElementById('detStockName').innerHTML = `${stockName} <span>(${stockCode})</span>`;
+            document.getElementById('auxBannersContainer').innerHTML = ''; // reset
+            pnl.style.opacity = '0.5';
+
+            try {
+                let url = `/api/dashboard/stock_details?trade_date=${tradeDate}&stock_code=${stockCode}`;
+                if (sessionTime) url += `&session_time=${sessionTime}`;
+
+                // Fetch details & trend concurrently
+                const [resDet, resTrend] = await Promise.all([
+                    fetch(url),
+                    fetch(`/api/dashboard/trend?trade_date=${tradeDate}&stock_code=${stockCode}`)
+                ]);
+
+                const data = await resDet.json();
+                const trendData = await resTrend.json();
+
+                pnl.style.opacity = '1';
+
+                if (data.error) { showToast(data.error); return; }
+
+                // 1. Render Aux Banners
+                const banners = document.getElementById('auxBannersContainer');
+                data.auxiliary.disposal.forEach(d => {
+                    banners.innerHTML += `<div class="banner disposal"><i class="fa-solid fa-triangle-exclamation"></i> 處置股 (${d.date_start} ~ ${d.date_end}): ${d.condition_desc}</div>`;
+                });
+                data.auxiliary.attention.forEach(a => {
+                    banners.innerHTML += `<div class="banner attention"><i class="fa-solid fa-circle-exclamation"></i> 注意股 (${a.attention_date}): ${a.reason}</div>`;
+                });
+
+                // 2. Stats
+                const pi = data.price_info;
+                const brk = data.brokers;
+
+                document.getElementById('statClose').innerHTML = pi && pi.close_price ? Number(pi.close_price).toFixed(2) : '-.-';
+                document.getElementById('statOpen').innerHTML = pi && pi.open_price ? pi.open_price : '-';
+                document.getElementById('statHigh').innerHTML = pi && pi.high_price ? pi.high_price : '-';
+                document.getElementById('statLow').innerHTML = pi && pi.low_price ? pi.low_price : '-';
+
+                // Volume conversion: price_info API changed to compute shares / 1000 so it returns equivalent lots directly (varies whether global or session based)
+                // However, we just show the sum(buy_vol + sell_vol) from brokers if session_time is filtered
+                const combined_vol = brk.total_buy_vol + brk.total_sell_vol;
+                document.getElementById('statVolume').innerHTML = combined_vol ? combined_vol.toLocaleString() : '-';
+
+                const netClass = brk.net_vol > 0 ? 'text-red' : (brk.net_vol < 0 ? 'text-green' : '');
+                const netSign = brk.net_vol > 0 ? '+' : '';
+                document.getElementById('statNet').innerHTML = `<span class="${netClass}">${netSign}${Number(brk.net_vol).toLocaleString()}</span>`;
+
+                document.getElementById('statBuyCount').textContent = brk.buy_count;
+                document.getElementById('statSellCount').textContent = brk.sell_count;
+
+                document.getElementById('buyCountTooltip').innerHTML = brk.buy_list && brk.buy_list.length ? "<b>買方券商:</b><br>" + brk.buy_list.join(', ') : '無';
+                document.getElementById('sellCountTooltip').innerHTML = brk.sell_list && brk.sell_list.length ? "<b>賣方券商:</b><br>" + brk.sell_list.join(', ') : '無';
+
+                // 3. Brokers Table
+                const buildRows = (arr) => {
+                    if (!arr || arr.length === 0) return '<tr><td colspan="4" style="text-align:center">無資料</td></tr>';
+                    return arr.map(r => `
+                        <tr>
+                            <td>${r.broker_name}</td>
+                            <td>${Number(r.total_buy).toLocaleString()}</td>
+                            <td>${Number(r.total_sell).toLocaleString()}</td>
+                            <td class="${r.net_buy > 0 ? 'text-red' : (r.net_buy < 0 ? 'text-green' : '')}">
+                                <b>${Number(r.net_buy).toLocaleString()}</b>
+                            </td>
+                        </tr>
+                    `).join('');
+                };
+
+                document.getElementById('topBuyersBody').innerHTML = buildRows(brk.top_buyers);
+                document.getElementById('topSellersBody').innerHTML = buildRows(brk.top_sellers);
+
+                // 4. Update ECharts Diagram
+                renderCharts(tradeDate, pi, trendData);
+
+            } catch (e) {
+                pnl.style.opacity = '1';
+                showToast("資料取得失敗：" + e);
+            }
+        }
+
+        function renderCharts(tradeDate, priceInfo, trendData) {
+            if (!myChart) return;
+
+            // X Axis data
+            let xAxisData = [];
+            let volumeData = [];
+
+            if (trendData && !trendData.error) {
+                trendData.forEach(td => {
+                    xAxisData.push(td.session_time + ' 時');
+                    volumeData.push({
+                        value: Number(td.total_volume),
+                        itemStyle: { color: td.net_volume >= 0 ? '#ef4444' : '#22c55e' } // Red if buy heavy, Green if sell heavy
+                    });
+                });
+            }
+
+            // K-line data: [open, close, lowest, highest] -> Echarts format
+            let kData = [];
+            if (priceInfo && priceInfo.open_price) {
+                kData = [[
+                    priceInfo.open_price,
+                    priceInfo.close_price,
+                    priceInfo.low_price,
+                    priceInfo.high_price
+                ]];
+            }
+
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'cross' }
+                },
+                grid: [
+                    { left: '10%', right: '8%', height: '50%' }, // candlestick
+                    { left: '10%', right: '8%', top: '70%', height: '20%' } // bar chart Volume
+                ],
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: [tradeDate], // For K-line
+                        scale: true,
+                        gridIndex: 0,
+                    },
+                    {
+                        type: 'category',
+                        data: xAxisData, // For Bar chart (sessions)
+                        gridIndex: 1,
+                        axisLabel: { color: '#94a3b8' }
+                    }
+                ],
+                yAxis: [
+                    { scale: true, gridIndex: 0, splitLine: { lineStyle: { color: '#334155' } } },
+                    { type: 'value', gridIndex: 1, splitLine: { show: false }, axisLabel: { show: false } }
+                ],
+                series: [
+                    {
+                        name: '日線',
+                        type: 'candlestick',
+                        data: kData,
+                        itemStyle: {
+                            color: '#ef4444', // Red for up
+                            color0: '#22c55e', // Green for down
+                            borderColor: '#ef4444',
+                            borderColor0: '#22c55e'
+                        }
+                    },
+                    {
+                        name: '時段總量(張)',
+                        type: 'bar',
+                        xAxisIndex: 1,
+                        yAxisIndex: 1,
+                        data: volumeData
+                    }
+                ]
+            };
+
+            myChart.setOption(option, true);
+        }
+
+        async function triggerIngest(actionType, btnEl) {
+            btnEl.classList.add('loading');
+            const originalHtml = btnEl.innerHTML;
+            btnEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 作業提交中...等待約 30 秒`;
+
+            try {
+                const res = await fetch('/api/ingest', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: actionType })
+                });
+                const rData = await res.json();
+                showToast(rData.message);
+            } catch (e) {
+                showToast("請求失敗: " + e);
+            } finally {
+                setTimeout(() => {
+                    btnEl.classList.remove('loading');
+                    btnEl.innerHTML = originalHtml;
+                }, 2000); // Give user enough time to see the background started msg
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.opacity = '1';
+            setTimeout(() => { t.style.opacity = '0'; }, 3000);
+        }
+    </script>
+</body>
+
+</html>

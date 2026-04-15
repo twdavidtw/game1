@@ -1,0 +1,8 @@
+Test bytes: b449b3ec
+[cp950] decoded: '富喬'  codepoints: ['0x5bcc', '0x55ac']
+[big5] decoded: '富喬'  codepoints: ['0x5bcc', '0x55ac']
+[big5hkscs] decoded: '富喬'  codepoints: ['0x5bcc', '0x55ac']
+[ms950] decoded: '富喬'  codepoints: ['0x5bcc', '0x55ac']
+富喬 encoded in [cp950]: b449b3ec  bytes: [180, 73, 179, 236]
+富喬 encoded in [big5]: b449b3ec  bytes: [180, 73, 179, 236]
+富喬 encoded in [big5hkscs]: b449b3ec  bytes: [180, 73, 179, 236]
